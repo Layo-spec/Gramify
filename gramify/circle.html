@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gramify - My Circle</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      padding-bottom: 70px;
+    }
+
+    header {
+      background: #0e1a2b;
+      color: white;
+      text-align: center;
+      padding: 16px;
+    }
+
+    section {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    input, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #0e1a2b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      margin: 8px 0;
+      background: #f0f4f8;
+      border-radius: 8px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #0e1a2b;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      z-index: 100;
+    }
+
+    .bottom-nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .bottom-nav a:hover {
+      color: #84c1ff;
+    }
+  </style>
+</head>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="create.js"></script>
+
+<body>
+
+  <header>
+    <h1>➕ My Circle</h1>
+  </header>
+
+  <section>
+    <input type="text" id="newFriend" placeholder="Friend's phone number" />
+    <button onclick="addToCircle()">Add to Circle</button>
+
+    <h3 style="margin-top: 24px;">👥 Current Circle</h3>
+    <ul id="circleList"></ul>
+  </section>
+
+  <nav class="bottom-nav">
+    <a href="feed.html">🏠 Feed</a>
+    <a href="circle.html">➕ Circle</a>
+    <a href="profile.html">👤 Profile</a>
+  </nav>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase Config + Circle Logic -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUserPhone = "";
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        currentUserPhone = user.phoneNumber;
+        loadCircle();
+      }
+    });
+
+    function loadCircle() {
+      const list = document.getElementById("circleList");
+      list.innerHTML = "";
+
+      db.collection("circles").where("owner", "==", currentUserPhone).get()
+        .then(snapshot => {
+          if (!snapshot.empty) {
+            const friends = snapshot.docs[0].data().friends || [];
+            friends.forEach(friend => {
+              const li = document.createElement("li");
+              li.textContent = friend;
+              list.appendChild(li);
+            });
+          }
+        });
+    }
+
+    function addToCircle() {
+      const friend = document.getElementById("newFriend").value.trim();
+      if (!friend) return;
+
+      const ref = db.collection("circles").where("owner", "==", currentUserPhone);
+
+      ref.get().then(snapshot => {
+        if (!snapshot.empty) {
+          const doc = snapshot.docs[0];
+          const friends = doc.data().friends || [];
+
+          if (!friends.includes(friend)) {
+            friends.push(friend);
+            doc.ref.update({ friends }).then(() => {
+              loadCircle();
+              alert("Added to circle!");
+            });
+          }
+        } else {
+          db.collection("circles").add({
+            owner: currentUserPhone,
+            friends: [friend]
+          }).then(() => {
+            loadCircle();
+            alert("Circle created and friend added!");
+          });
+        }
+      });
+
+      document.getElementById("newFriend").value = "";
+    }
+  </script>
+</body>
+</html>

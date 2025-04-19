@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gramify</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+    }
+    header {
+      background: #0e1a2b;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    section {
+      padding: 20px;
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    .post {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      background: #fefefe;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 6px;
+    }
+    input, button {
+      margin: 4px 0;
+      padding: 8px;
+    }
+    #profileAvatar {
+      max-width: 100px;
+      margin-top: 10px;
+      border-radius: 50%;
+      border: 2px solid #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Welcome to Gramify 👋</h1>
+    <p>Where Moments Come Alive.</p>
+  </header>
+
+  <!-- 🚀 Main App -->
+  <section id="appSection" style="display:none;">
+    <h2>Create a Post</h2>
+    <form id="newPostForm">
+      <input type="text" id="content" placeholder="What’s on your mind?" required />
+      <input type="text" id="image" placeholder="Image path (e.g., images/jollof.jpg)" required />
+      <button type="submit">Post</button>
+    </form>
+    <button onclick="showProfile()">View My Profile</button>
+
+    <h3>My Circle</h3>
+    <input type="text" id="newFriend" placeholder="Friend's phone number" />
+    <button onclick="addToCircle()">Add</button>
+    <ul id="circleList"></ul>
+
+    <main id="feed"></main>
+  </section>
+
+  <!-- 👤 Profile Section -->
+  <section id="profileSection" style="display:none;">
+    <h2 style="color: #223f75;">My Profile</h2>
+    <button onclick="logout()">Logout</button>
+
+
+    <div>
+      <strong>Upload Profile Picture</strong><br />
+      <input type="file" id="avatarInput" />
+      <button onclick="uploadAvatar()">Upload</button>
+      <br/>
+      <img id="profileAvatar" src="default-avatar.jpg" alt="Avatar" style="display: none;" />
+    </div>
+
+    <p id="profilePhone">Phone: </p>
+    <p id="profilePostCount">Posts: </p>
+    <div id="myPosts"></div>
+
+    <br/>
+    <button onclick="goBackToFeed()">← Back to Feed</button>
+  </section>
+
+  <!-- 🔌 Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- 🚀 App Logic -->
+  <script src="script.js"></script>
+</body>
+</html>

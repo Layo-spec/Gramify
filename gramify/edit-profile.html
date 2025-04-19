@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile - Gramify</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #5a2a82);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+    }
+
+    .logo {
+      width: 60px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      margin-bottom: 10px;
+    }
+
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid white;
+      margin: 10px auto;
+      object-fit: cover;
+      background: #fff;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input, select, textarea {
+      background: rgba(255, 255, 255, 0.95);
+      color: #222;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    button {
+      background: #00bcd4;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00a6b7;
+    }
+
+    .error {
+      color: #ffcccb;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <img src="images/gramifylogo.png" class="logo" alt="Gramify Logo">
+    <h2>✏️ Edit Your Profile</h2>
+
+    <img id="avatarPreview" src="images/default-avatar.jpg" class="avatar-preview" />
+    <input type="file" id="avatarInput" accept="image/*" />
+
+    <input type="text" id="firstName" placeholder="First Name" />
+    <input type="text" id="lastName" placeholder="Last Name" />
+    <input type="text" id="username" placeholder="Username" />
+    <div class="error" id="usernameError"></div>
+
+    <select id="gender">
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Nonbinary">Nonbinary</option>
+    </select>
+
+    <input type="text" id="pronouns" placeholder="Pronouns (e.g., she/her)" />
+    <textarea id="bio" placeholder="Your bio..."></textarea>
+
+    <button onclick="updateProfile()">Update Profile</button>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const currentUserPhone = localStorage.getItem("currentUserPhone");
+    if (!currentUserPhone) {
+      alert("Please log in.");
+      window.location.href = "login.html";
+    }
+
+    const avatarPreview = document.getElementById("avatarPreview");
+    let avatarFile = null;
+
+    document.getElementById("avatarInput").addEventListener("change", e => {
+      avatarFile = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = e => avatarPreview.src = e.target.result;
+      reader.readAsDataURL(avatarFile);
+    });
+
+    async function loadUserData() {
+      const doc = await db.collection("users").doc(currentUserPhone).get();
+      if (!doc.exists) return;
+      const data = doc.data();
+      document.getElementById("firstName").value = data.firstName || "";
+      document.getElementById("lastName").value = data.lastName || "";
+      document.getElementById("username").value = data.username || "";
+      document.getElementById("gender").value = data.gender || "";
+      document.getElementById("pronouns").value = data.pronouns || "";
+      document.getElementById("bio").value = data.bio || "";
+
+      if (data.avatar) {
+        avatarPreview.src = data.avatar.startsWith("http") ? data.avatar : "http://127.0.0.1:5001" + data.avatar;
+      }
+    }
+
+    loadUserData();
+
+    async function updateProfile() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const gender = document.getElementById("gender").value;
+      const pronouns = document.getElementById("pronouns").value.trim();
+      const bio = document.getElementById("bio").value.trim();
+      const errorEl = document.getElementById("usernameError");
+
+      if (!firstName || !lastName || !username) {
+        return alert("All required fields must be filled.");
+      }
+
+      const existing = await db.collection("users")
+        .where("username", "==", username)
+        .get();
+
+      const duplicate = existing.docs.find(doc => doc.id !== currentUserPhone);
+      if (duplicate) {
+        errorEl.textContent = "❌ Username already taken.";
+        return;
+      } else {
+        errorEl.textContent = "";
+      }
+
+      let avatarUrl = avatarPreview.src;
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("image", avatarFile);
+        const res = await fetch("http://127.0.0.1:5001/upload-avatar", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        avatarUrl = data.url || avatarUrl;
+      }
+
+      await db.collection("users").doc(currentUserPhone).update({
+        firstName, lastName, username, gender, pronouns, bio, avatar: avatarUrl
+      });
+
+      alert("✅ Profile updated!");
+      window.location.href = "profile.html";
+    }
+  </script>
+</body>
+</html>

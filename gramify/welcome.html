@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to Gramify</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0e1a2b, #1e3c72);
+      height: 100vh;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    .logo {
+      width: 120px;
+      animation: bounce 2s infinite;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.8rem;
+      margin-top: 10px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 30px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 14px 26px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+      background: #00bcd4;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      background: #00a4ba;
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="images/gramifylogo.png" alt="Gramify Logo" class="logo" />
+    <h1>Welcome to Gramify</h1>
+    <p>Where Moments Come Alive ✨</p>
+
+    <div class="buttons">
+        <button onclick="handleRedirect('login')">Login</button>
+        <button onclick="handleRedirect('signup')">Sign Up</button>        
+    </div>
+  </div>
+
+  <audio id="login-sound" src="sounds/click1.mp3"></audio>
+  <audio id="signup-sound" src="sounds/click2.mp3"></audio>
+
+  <script>
+    function playSound(type) {
+      const audio = document.getElementById(type === 'login' ? 'login-sound' : 'signup-sound');
+      audio.currentTime = 0;
+      return audio.play().catch(err => {
+        console.warn("🔇 Couldn't play sound:", err);
+      });
+    }
+  
+    function handleRedirect(type) {
+      playSound(type).then(() => {
+        // wait 300ms before redirect to let sound play
+        setTimeout(() => {
+          window.location.href = type === 'login' ? 'login.html' : 'create-profile.html';
+        }, 300);
+      });
+    }
+  </script>
+  
+</body>
+</html>

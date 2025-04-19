@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gramify - Feed</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      padding-bottom: 70px;
+    }
+
+    header {
+      background: #0e1a2b;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .feed-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    .post {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin-right: 12px;
+      object-fit: cover;
+      border: 2px solid #0e1a2b;
+    }
+
+    .post-user {
+      font-size: 0.9rem;
+    }
+
+    .timestamp {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .post-content p {
+      margin: 6px 0;
+      font-size: 1rem;
+    }
+
+    .post-content img {
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #0e1a2b;
+      display: flex;
+      justify-content: space-around;
+      padding: 14px 0;
+      z-index: 200;
+    }
+
+    .bottom-nav a {
+      color: #aaa;
+      font-size: 1.3rem;
+      text-decoration: none;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .bottom-nav a.active {
+      color: #00bcd4;
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📰 Feed</h1>
+  </header>
+
+  <main class="feed-container" id="feed"></main>
+
+  <nav class="bottom-nav">
+    <a href="feed.html" class="active">🏠</a>
+    <a href="create.html">➕</a>
+    <a href="profile.html">👤</a>
+  </nav>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const currentUserPhone = localStorage.getItem("currentUserPhone");
+
+    if (!currentUserPhone) {
+    alert("Please log in first.");
+  window.location.href = "login.html";
+  } else {
+  loadFeed(); // You can now use currentUserPhone
+  }
+
+    function formatTimestamp(ts) {
+      if (!ts) return "Just now";
+      const date = ts.toDate();
+      const diff = Math.floor((Date.now() - date.getTime()) / 3600000);
+      return diff === 0 ? "Just now" : `${diff} hour${diff > 1 ? 's' : ''} ago`;
+    }
+
+    function loadFeed() {
+      db.collection("circles").where("owner", "==", currentUserPhone).get()
+        .then(snapshot => {
+          let circle = snapshot.empty ? [] : snapshot.docs[0].data().friends || [];
+
+          db.collection("posts").orderBy("timestamp", "desc").get().then(posts => {
+            const feedEl = document.getElementById("feed");
+            feedEl.innerHTML = "";
+            posts.forEach(doc => {
+              const post = doc.data();
+              if (circle.includes(post.userPhone)) {
+                const div = document.createElement("div");
+                div.className = "post";
+                div.innerHTML = `
+                  <div class="post-header">
+                    <img class="avatar" src="${post.avatar || 'https://via.placeholder.com/50'}" />
+                    <div class="post-user">
+                      <strong>${post.userPhone}</strong><br>
+                      <span class="timestamp">${formatTimestamp(post.timestamp)}</span>
+                    </div>
+                  </div>
+                  <div class="post-content">
+                    <p>${post.content}</p>
+                    <img src="${post.image}" alt="Post image" />
+                  </div>
+                `;
+                feedEl.appendChild(div);
+              }
+            });
+          });
+        });
+    }
+  </script>
+</body>
+</html>

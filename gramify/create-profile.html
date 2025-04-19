@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Profile - Gramify</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 16px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #ffffff;
+      animation: popIn 1.1s ease;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 25px;
+      color: #eee;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input {
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+    }
+
+    button {
+      background-color: #00bcd4;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #00a6b7;
+      transform: translateY(-2px);
+    }
+
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 15px auto 5px;
+      object-fit: cover;
+      border: 3px solid #fff;
+      box-shadow: 0 0 15px #00bcd4;
+      background-color: white;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🎉 Welcome to Gramify</h2>
+    <p>Let's complete your profile</p>
+
+    <input type="text" id="firstName" placeholder="First Name" />
+    <input type="text" id="lastName" placeholder="Last Name" />
+    <input type="text" id="phone" placeholder="Phone Number" />
+    <input type="text" id="username" placeholder="Username" />
+
+    <label>Profile Picture</label>
+    <img id="avatarPreview" class="avatar-preview" src="images/default-avatar.jpg" alt="Avatar" />
+    <input type="file" id="avatarInput" accept="image/*" />
+
+    <input id="password" type="password" placeholder="Create Password" />
+    <input id="confirmPassword" type="password" placeholder="Confirm Password" />
+    <button id="createProfileBtn" onclick="playSound()">Create Profile</button>
+  </div>
+
+  <audio id="clickSound" src="sounds/click1.mp3"></audio>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarPreview = document.getElementById("avatarPreview");
+    let avatarFile = null;
+
+    avatarInput.addEventListener("change", e => {
+      avatarFile = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        avatarPreview.src = e.target.result;
+      };
+      reader.readAsDataURL(avatarFile);
+    });
+
+    function playSound() {
+      const sound = document.getElementById("clickSound");
+      sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+
+    document.getElementById("createProfileBtn").addEventListener("click", async () => {
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if (!firstName || !lastName || !phone || !username || !password || !confirmPassword) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  // Format phone with +1 if not included
+  const formattedPhone = phone.startsWith("+") ? phone : "+1" + phone;
+  localStorage.setItem("currentUserPhone", formattedPhone);
+
+  let avatarUrl = "";
+  if (avatarFile) {
+    const formData = new FormData();
+    formData.append("image", avatarFile);
+    try {
+      const res = await fetch("http://127.0.0.1:5001/upload-avatar", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      avatarUrl = data.url || "";
+    } catch (err) {
+      alert("Avatar upload failed.");
+      console.error("Upload error:", err);
+    }
+  }
+
+  try {
+    await db.collection("users").doc(formattedPhone).set({
+      firstName,
+      lastName,
+      phone: formattedPhone,
+      username,
+      password,
+      avatar: avatarUrl
+    });
+
+    alert("✅ Profile created successfully!");
+    window.location.href = "feed.html";
+  } catch (err) {
+    alert("❌ Failed to save profile.");
+    console.error("Firestore error:", err);
+  }
+});
+
+  </script>
+</body>
+</html>

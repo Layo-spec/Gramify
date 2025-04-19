@@ -1,0 +1,11 @@
+[
+    {
+      "owner": "Albert",
+      "friends": ["Sarah", "Tobi"]
+    },
+    {
+      "owner": "Tobi",
+      "friends": ["Albert"]
+    }
+  ]
+  

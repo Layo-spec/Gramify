@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile - Gramify</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f4f5f7;
+      padding-bottom: 80px;
+    }
+
+    header {
+      background: #0e1a2b;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    #logoutBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 500px;
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    #avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid #0e1a2b;
+      object-fit: cover;
+      margin-bottom: 8px;
+    }
+    
+
+    #profileUsername {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 16px;
+      background: #0e1a2b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #profilePhone, #profilePostCount {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .post {
+      margin-top: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      text-align: left;
+    }
+
+    .post img {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #0e1a2b;
+      display: flex;
+      justify-content: space-around;
+      padding: 14px 0;
+    }
+
+    nav a {
+      color: #aaa;
+      font-size: 1.3rem;
+      text-decoration: none;
+    }
+
+    nav a.active {
+      color: #00bcd4;
+    }
+
+    .post-header {
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.menu-button {
+  cursor: pointer;
+  padding: 0 8px;
+  font-size: 20px;
+  user-select: none;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 25px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.dropdown-menu.hidden {
+  display: none;
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f2f2f2;
+}
+
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h2>👤 My Profile</h2>
+    <button id="logoutBtn">Logout</button>
+  </header>
+
+
+  <main>
+    <img id="avatar" src="images/default-avatar.jpg" alt="Avatar" />
+    <p id="profileUsername"></p>
+  
+    <!-- Removed file input and upload button -->
+  
+    <div style="margin: 20px 0;">
+      <button onclick="goToEditProfile()">✏️ Edit Profile</button>
+      <button onclick="shareProfile()">📤 Share Profile</button>
+    </div>
+  
+    <p id="profilePhone">Phone: </p>
+    <p id="profilePostCount">Posts: </p>
+    <div id="myPosts"></div>
+  </main>
+  
+  <nav class="bottom-nav">
+    <a href="feed.html">🏠</a>
+    <a href="create.html">➕</a>
+    <a href="profile.html" class="active">👤</a>
+  </nav>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    // const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // let currentUserPhone = localStorage.getItem("currentUserPhone");
+
+    // if (!currentUserPhone) {
+    // alert("Please log in first.");
+    // window.location.href = "login.html";
+    // } else {
+    // document.getElementById("profilePhone").textContent = "Phone: " + currentUserPhone;
+    // //  loadAvatar();
+    // loadUserData();
+
+    // loadUserPosts();
+    // }
+    const currentUserPhone = localStorage.getItem("currentUserPhone");
+    console.log("Logged in as:", currentUserPhone);
+
+    if (!currentUserPhone) {
+    alert("Please log in first.");
+    window.location.href = "login.html";
+    } else {
+    document.getElementById("profilePhone").textContent = "Phone: " + currentUserPhone;
+    loadUserData();
+    loadUserPosts();
+    }
+
+    
+
+
+    function loadUserData() {
+      db.collection("users").doc(currentUserPhone).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+
+          if (data.avatar) {
+            const fullUrl = data.avatar.startsWith("http") ? data.avatar : "http://127.0.0.1:5001" + data.avatar;
+            const avatarImg = document.getElementById("avatar");
+            avatarImg.src = fullUrl;
+            avatarImg.onerror = () => avatarImg.src = "https://via.placeholder.com/100";
+          }
+
+          if (data.username) {
+            document.getElementById("profileUsername").textContent = "@" + data.username;
+          }
+        }
+      });
+    }
+
+    function uploadAvatar() {
+      const file = document.getElementById("avatarInput").files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      fetch("http://127.0.0.1:5001/upload-avatar", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) {
+          db.collection("users").doc(currentUserPhone).set({
+            avatar: data.url
+          }, { merge: true });
+          document.getElementById("avatar").src = data.url;
+        } else {
+          alert("Upload failed.");
+        }
+      });
+    }
+
+//     function loadUserPosts() {
+//   const container = document.getElementById("myPosts");
+
+//   db.collection("posts")
+//     .where("userPhone", "==", currentUserPhone)
+//     .orderBy("timestamp", "desc")
+//     .onSnapshot(snapshot => {
+//       const posts = snapshot.docs;
+//       document.getElementById("profilePostCount").textContent = `Posts: ${posts.length}`;
+//       container.innerHTML = "";
+
+//       posts.forEach(doc => {
+//         const post = doc.data();
+//         const postId = doc.id;
+
+//         const div = document.createElement("div");
+//         div.className = "post";
+//         div.innerHTML = `
+//           <div class="post-header">
+//             <span class="menu-button">⋮</span>
+//             <div class="dropdown-menu hidden">
+//               <button class="delete-btn">🗑️ Delete Post</button>
+//             </div>
+//           </div>
+//           <p>${post.content}</p>
+//           <img src="${post.image}" alt="Post image" />
+//         `;
+
+//         container.appendChild(div);
+
+//         const menuBtn = div.querySelector(".menu-button");
+//         const menu = div.querySelector(".dropdown-menu");
+//         const deleteBtn = div.querySelector(".delete-btn");
+
+//         menuBtn.addEventListener("click", () => {
+//           menu.classList.toggle("hidden");
+//         });
+
+//         deleteBtn.addEventListener("click", () => {
+//           const confirmDelete = confirm("Are you sure you want to delete this post?");
+//           if (confirmDelete) {
+//             db.collection("posts").doc(postId).delete().then(() => {
+//               alert("✅ Post deleted!");
+//             });
+//           }
+//         });
+
+//         // Optional: Close dropdown when clicking outside
+//         document.addEventListener("click", (e) => {
+//           if (!div.contains(e.target)) {
+//             menu.classList.add("hidden");
+//           }
+//         });
+//       });
+//     });
+// }
+function loadUserPosts() {
+  const container = document.getElementById("myPosts");
+
+  db.collection("posts")
+    .where("userPhone", "==", currentUserPhone)
+    .orderBy("timestamp", "desc")
+    .onSnapshot(snapshot => {
+      const posts = snapshot.docs;
+      document.getElementById("profilePostCount").textContent = `Posts: ${posts.length}`;
+      container.innerHTML = "";
+
+      posts.forEach(doc => {
+        const post = doc.data();
+        const postId = doc.id;
+
+        const div = document.createElement("div");
+        div.className = "post";
+        div.innerHTML = `
+          <div class="post-header">
+            <span class="menu-button">⋮</span>
+            <div class="dropdown-menu hidden">
+              <button class="delete-btn">🗑️ Delete Post</button>
+            </div>
+          </div>
+          <p>${post.content}</p>
+          <img src="${post.image}" alt="Post image" />
+        `;
+
+        container.appendChild(div);
+
+        const menuBtn = div.querySelector(".menu-button");
+        const menu = div.querySelector(".dropdown-menu");
+        const deleteBtn = div.querySelector(".delete-btn");
+
+        menuBtn.addEventListener("click", () => {
+          menu.classList.toggle("hidden");
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          const confirmDelete = confirm("Are you sure you want to delete this post?");
+          if (confirmDelete) {
+            db.collection("posts").doc(postId).delete().then(() => {
+              alert("✅ Post deleted!");
+            });
+          }
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!div.contains(e.target)) {
+            menu.classList.add("hidden");
+          }
+        });
+      });
+    });
+}
+
+
+    
+    function goToEditProfile() {
+    window.location.href = "edit-profile.html";
+    }
+
+    function shareProfile() {
+     const username = document.getElementById("profileUsername").textContent;
+     const url = `${window.location.origin}/public-profile.html?user=${username.replace("@", "")}`;
+    navigator.clipboard.writeText(url).then(() => {
+    alert("🔗 Profile link copied!");
+  });
+}
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+  if (confirm("Are you sure you want to log out?")) {
+    localStorage.removeItem("currentUserPhone");
+    window.location.href = "login.html";
+  }
+});
+
+  </script>
+</body>
+</html>

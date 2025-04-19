@@ -1,0 +1,99 @@
+body {
+    font-family: sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  #feed {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+  }
+  .post {
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .post img {
+    width: 100%;
+    border-radius: 10px;
+  }
+  #postForm {
+    max-width: 600px;
+    margin: 20px auto;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+  }
+  #postForm h2 {
+    margin-bottom: 10px;
+  }
+  #postForm input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 1em;
+  }
+  #postForm button {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #profileSection {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  #profileSection h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #1d3557;
+  }
+  
+  #profilePhone, #profilePostCount {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  
+  #myPosts {
+    margin-top: 1rem;
+  }
+  
+  #myPosts div {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #fafafa;
+  }
+  
+  #myPosts img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    margin-top: 0.5rem;
+    border-radius: 6px;
+  }
+  
+  
+  

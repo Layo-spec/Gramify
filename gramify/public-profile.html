@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gramify Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .profile-card {
+      background: white;
+      color: #222;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      max-width: 360px;
+      text-align: center;
+      position: relative;
+    }
+    .gramify-logo {
+    position: absolute;
+    top: -60px;
+    left: calc(50% - 50px);
+    width: 100px;
+    height: auto;
+    animation: pulseGlow 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px #6e00ff) drop-shadow(0 0 20px #00c3ff);
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+    }
+
+    .gramify-logo:hover {
+    transform: scale(1.08) rotate(2deg);
+    }
+
+    @keyframes pulseGlow {
+    0% {
+   filter: drop-shadow(0 0 12px #6e00ff) drop-shadow(0 0 20px #00c3ff);
+    }
+    50% {
+    filter: drop-shadow(0 0 24px #9d00ff) drop-shadow(0 0 30px #00ffff);
+    }
+    100% {
+    filter: drop-shadow(0 0 12px #6e00ff) drop-shadow(0 0 20px #00c3ff);
+    }
+    }
+
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid #1e3c72;
+      object-fit: cover;
+      margin-top: 30px;
+    }
+
+    h2 {
+      margin: 15px 0 5px;
+      font-size: 1.5rem;
+    }
+
+    .username {
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .pronouns {
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .bio {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    button.add-friend {
+      margin-top: 20px;
+      padding: 10px 24px;
+      background: #0e1a2b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.add-friend:hover {
+      background: #1a365d;
+    }
+    
+  </style>
+</head> 
+<body>
+
+  <div class="profile-card">
+    <img src="images/gramifylogo.png" class="gramify-logo" />
+    <img src="images/default-avatar.jpg" alt="Avatar" class="avatar" id="avatar"/>
+    <h2 id="fullName">User Name</h2>
+    <div class="username" id="username">@username</div>
+    <div class="pronouns" id="pronouns">they/them</div>
+    <div class="bio" id="bio">Loading bio...</div>
+    <button class="add-friend">➕ Add to Friends</button>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const params = new URLSearchParams(window.location.search);
+    const usernameParam = params.get("user");
+
+    if (usernameParam) {
+      db.collection("users")
+        .where("username", "==", usernameParam)
+        .limit(1)
+        .get()
+        .then(snapshot => {
+          if (!snapshot.empty) {
+            const user = snapshot.docs[0].data();
+
+            document.getElementById("fullName").textContent = `${user.firstName} ${user.lastName}`;
+            document.getElementById("username").textContent = `@${user.username}`;
+            document.getElementById("pronouns").textContent = user.pronouns || "they/them";
+            document.getElementById("bio").textContent = user.bio || "This user hasn’t written a bio yet.";
+
+            const avatarUrl = user.avatar?.startsWith("http")
+              ? user.avatar
+              : "http://127.0.0.1:5001" + user.avatar;
+
+            document.getElementById("avatar").src = avatarUrl;
+          } else {
+            alert("User not found.");
+          }
+        });
+    } else {
+      alert("Invalid profile link.");
+    }
+  </script>
+</body>
+</html>

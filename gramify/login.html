@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gramify Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #0e1a2b, #1c2d4a);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    header {
+      text-align: center;
+      margin-top: 80px;
+      
+    }
+
+    header img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    section {
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      margin: 80px auto;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.8s ease-out;
+    }
+    @keyframes fadeInUp {
+    from {
+    transform: translateY(40px);
+    opacity: 0;
+    }
+    to {
+    transform: translateY(0);
+    opacity: 1;
+    }
+    }
+
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    input, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    input {
+      background: #fff;
+      color: #222;
+    }
+
+    button {
+      background-color: #0e1a2b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #142d4c;
+    }
+
+    p a {
+      color: #eee;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="images/gramifylogo.png" alt="Gramify Logo" />
+    <h1>Welcome to Gramify 👋</h1>
+    <p>Please log in to continue.</p>
+  </header>
+
+  <section>
+    <h2>👤 Username Login</h2>
+    <input type="text" id="username" placeholder="Enter your username" />
+    <input type="password" id="password" placeholder="Enter your password" />
+    <button id="loginBtn">Login</button>
+    <p style="text-align:right;">
+        <a href="forgot-password.html">Forgot password?</a>
+    </p>
+  </section>
+
+  <!-- 🔌 Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!username || !password) {
+        return alert("Please enter both username and password.");
+      }
+
+      try {
+        const snapshot = await db.collection("users").where("username", "==", username).get();
+
+        if (snapshot.empty) {
+          return alert("❌ Username not found.");
+        }
+
+        let foundUser = null;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.password === password) {
+            foundUser = data;
+          }
+        });
+
+        // if (foundUser) {
+        //   localStorage.setItem("currentUserPhone", foundUser.phone);
+        //   alert("✅ Login successful!");
+        // //   window.location.href = "feed.html";
+        // location.assign("feed.html");
+        if (foundUser) {
+  // Ensure it starts with +1
+  const formattedPhone = foundUser.phone.startsWith("+") ? foundUser.phone : "+1" + foundUser.phone;
+
+  localStorage.setItem("currentUserPhone", formattedPhone);
+  alert("✅ Login successful!");
+  location.assign("feed.html");
+
+
+        } else {
+          alert("Incorrect password.");
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        alert("Something went wrong. Try again.");
+      }
+    });
+  </script>
+
+</body>
+</html>

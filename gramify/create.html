@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Post - Gramify</title>
+  <style>
+    /* body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      padding-bottom: 80px;
+    } */
+    body {
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #612be2 0%, transparent 25%), 
+            radial-gradient(circle at 80% 80%, #00c9ff 0%, transparent 25%),
+            #0e1a2b;
+background-repeat: no-repeat;
+background-attachment: fixed;
+
+
+
+
+  margin: 0;
+  padding-bottom: 80px;
+  color: #fff;
+}
+
+
+    header {
+      background: #0e1a2b;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* main {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    } */
+    button#submitBtn:hover {
+    background: #00bcd4;
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px #00bcd4aa;
+    transition: all 0.3s ease-in-out;
+    }
+
+    main {
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+    }
+
+
+
+    /* input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    } */
+    input[type="text"], button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+button {
+  background: #0e1a2b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: #00bcd4;
+  transform: translateY(-1px);
+}
+
+
+
+    /* button {
+      background: #0e1a2b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #12263a;
+    } */
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .dropzone {
+    margin-top: 16px;
+    border: 2px dashed #00bcd4;
+    border-radius: 12px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    text-align: center;
+    color: #0e1a2b;
+    font-weight: 500;
+    transition: background 0.3s;
+    }
+
+.dropzone.dragover {
+  background: rgba(0, 188, 212, 0.2);
+}
+
+
+    /* .preview-container {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .preview-container img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+    } */
+    .preview-container {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.preview-container img {
+  max-width: 100%;
+  max-height: 250px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  animation: zoomIn 0.4s ease;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #0e1a2b;
+      display: flex;
+      justify-content: space-around;
+      padding: 14px 0;
+      z-index: 200;
+    }
+
+    .bottom-nav a {
+      color: #aaa;
+      font-size: 1.3rem;
+      text-decoration: none;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .bottom-nav a.active {
+      color: #00bcd4;
+      transform: scale(1.2);
+    }
+    
+
+    /* .toast {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00bcd4;
+  color: white;
+  padding: 14px 24px;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.toast.show {
+  bottom: 100px;
+  opacity: 1;
+} */
+.toast {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: #00bcd4;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.6s ease-in-out;
+}
+
+.toast.show {
+  bottom: 90px;
+  opacity: 1;
+  transform: translateX(-50%) scale(1.05);
+  pointer-events: auto;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>➕ Create Post</h1>
+  </header>
+
+  <main>
+    <form id="newPostForm">
+      <input type="text" id="content" placeholder="Caption" required />
+      
+      <div id="dropzone" class="dropzone">
+        Drag & drop or click to upload
+        <input type="file" id="imageInput" accept="image/*" style="display: none;" />
+      </div>
+
+      <div class="preview-container">
+        <img id="previewImage" style="display: none;" />
+      </div>
+
+      <button type="submit" id="submitBtn">Post</button>
+    </form>
+  </main>
+
+  <div class="toast" id="toast">✅ Post created!</div>
+
+  <nav class="bottom-nav">
+    <a href="feed.html">🏠</a>
+    <a href="create.html" class="active">➕</a>
+    <a href="profile.html">👤</a>
+  </nav>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Logic -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOE9D88xrVn3UZKLlPeNJT7_LzZvTnxYA",
+      authDomain: "gramify-31432.firebaseapp.com",
+      projectId: "gramify-31432",
+      storageBucket: "gramify-31432.appspot.com",
+      messagingSenderId: "433332533057",
+      appId: "1:433332533057:web:cbab71ca12b4e19d1913c0"
+    };
+  
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  
+    const currentUserPhone = localStorage.getItem("currentUserPhone");
+    if (!currentUserPhone) {
+      alert("Please log in first.");
+      window.location.href = "login.html";
+    }
+  
+    const form = document.getElementById("newPostForm");
+    const dropzone = document.getElementById("dropzone");
+    const imageInput = document.getElementById("imageInput");
+    const previewImage = document.getElementById("previewImage");
+    const submitBtn = document.getElementById("submitBtn");
+    const toast = document.getElementById("toast");
+    let selectedImage = null;
+  
+    dropzone.addEventListener("click", () => {
+      imageInput.value = ""; // Reset input so same file triggers change
+      imageInput.click();
+    });
+  
+    dropzone.addEventListener("dragover", e => {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+  
+    dropzone.addEventListener("dragleave", () => {
+      dropzone.classList.remove("dragover");
+    });
+  
+    dropzone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      handleImage(e.dataTransfer.files[0]);
+    });
+  
+    imageInput.addEventListener("change", e => {
+      handleImage(e.target.files[0]);
+    });
+  
+    function handleImage(file) {
+  if (!file) {
+    console.warn("⚠️ No file selected.");
+    return;
+  }
+
+  selectedImage = file;
+  console.log("📷 Image selected:", file.name);
+
+  // 🧼 Always reset preview image
+  previewImage.style.display = "none";
+  previewImage.src = "";
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    previewImage.src = e.target.result;
+    previewImage.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+}
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+  
+      const caption = document.getElementById("content").value.trim();
+      if (!caption || !selectedImage) {
+        alert("Please enter content and select an image.");
+        return;
+      }
+  
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Posting...";
+  
+      try {
+        const formData = new FormData();
+        formData.append("image", selectedImage);
+  
+        const uploadRes = await fetch("http://127.0.0.1:5001/upload-avatar", {
+          method: "POST",
+          body: formData
+        });
+  
+        console.log("Upload result:", uploadData);
+        debugger;
+  
+        if (!uploadData.url) {
+          alert("Upload failed.");
+          throw new Error("Upload returned no URL.");
+        }
+  
+        const docRef = await db.collection("posts").add({
+          content: caption,
+          image: uploadData.url,
+          userPhone: currentUserPhone,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+  
+        console.log("Post saved with ID:", docRef.id);
+  
+        toast.classList.add("show");
+  
+        setTimeout(() => {
+          toast.classList.remove("show");
+          window.location.href = "profile.html";
+        }, 1500);
+      } catch (err) {
+        console.error("❌ ERROR:", err);
+        alert("Something went wrong: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Post";
+        document.getElementById("content").value = "";
+        previewImage.src = "";
+        previewImage.style.display = "none";
+        imageInput.value = "";
+        selectedImage = null;
+      }
+    });
+  </script>
+  
+  
+  
+</body>
+</html>
